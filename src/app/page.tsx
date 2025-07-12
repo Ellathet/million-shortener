@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { ShortedUrl } from '../models/ShortedUrl';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { ShortedUrlWithUrl, URLList } from '../components/url-list';
+import { HttpStatusCode } from 'axios';
 
 export default function Home() {
   const recaptchaRef = createRef<ReCAPTCHA>();
@@ -89,7 +90,15 @@ export default function Home() {
           },
           body: JSON.stringify(data),
         });
+
+        if(response.status === HttpStatusCode.TooManyRequests) {
+          toast.error('Hey you, calm down! You are making too many requests.');
+          setLoading(false); 
+          return
+        }
+ 
         const responseData = await response.json();
+
 
         if (responseData.error) {
           throw new Error(responseData.error);
