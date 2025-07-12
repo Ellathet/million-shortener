@@ -17,6 +17,8 @@ Our achieve here is that you url never goes down, so we follow some steps:
 
 - **Unlimited Redirects**: And if the redirect goes down? We use [Next.js](https://nextjs.org/) working with SSR and [Vercel Functions](https://vercel.com/docs/functions) to provide a huge and unlimited serverless backend.
 
+- **Almost Unlimited**: Yes, we have a rate-limit **only set in production**, this is for prevent to many url created hourly. And to set it we use a [Sliding Window Strategy](https://upstash.com/docs/redis/sdks/ratelimit-ts/algorithms#sliding-window).
+
 - **Security**: Nothing more sad than a million service without security for that we use also [Vercel WAF](https://vercel.com/docs/vercel-firewall/vercel-waf), that able us to block and monitor everything it's happen in the network. Also we have a huge [captcha](https://developers.google.com/recaptcha?hl=pt-br) to block flooders. 
 
 ## How to run locally
