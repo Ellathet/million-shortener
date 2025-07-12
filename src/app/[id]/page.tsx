@@ -3,15 +3,10 @@ import { ShortedUrlEntity } from '../../models/ShortedUrl';
 import { Button } from '../../components/ui/button';
 import Link from 'next/link';
 
-interface RedirectTemplateProps {
-  params: { id: string };
-}
-
 // Turn this page into a SSR component makes able to use Serverless functions
 // to redirect users to the original URL based on the shorted ID.
-export default async function Page(props: RedirectTemplateProps) {
-  const params = await props.params;
-  const { id } = params;
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
   const shortUrl = await ShortedUrlEntity.findById(id);
 
