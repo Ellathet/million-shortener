@@ -29,7 +29,7 @@ export const URLList: React.FC<IURLListProps> = ({ items }) => {
       {items &&
         items.length > 0 &&
         items.map((url) => (
-          <Card className="bg-[#14151486] border-[#383838] my-4" key={url.url}>
+          <Card className="bg-[#14151486] border-[#383838] my-2" key={url.url}>
             <CardContent className="flex justify-between items-center">
               <div className="flex flex-col">
                 <Tooltip>
