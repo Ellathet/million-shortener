@@ -1,9 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ShortedUrlEntity } from "@/models/ShortedUrl";
+import { RecaptchaService } from "../../../lib/recaptcha";
+import { HttpStatusCode } from "axios";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+
+    const recaptcha = new RecaptchaService();
+
+    if(process.env.NODE_ENV === 'production') {
+      if (!body.token) {
+        return NextResponse.json({
+          error: 'Captcha Token is required',
+        }, {
+          status: HttpStatusCode.Unauthorized,
+        })
+      }
+  
+      const recaptchaData = await recaptcha.verify(body.token);
+
+      if (recaptchaData.success === false) {
+        return NextResponse.json({
+          error: 'Captcha verification failed',
+        }, {
+          status: HttpStatusCode.Unauthorized,
+        })
+      }
+    }
 
     const urlShorted = new ShortedUrlEntity({
       originalUrl: body.url,
@@ -31,5 +55,12 @@ export async function POST(request: NextRequest) {
         headers: { "Content-Type": "application/json" },
       })
     }
+
+    return NextResponse.json({
+      error: "An unexpected error occurred",
+    }, {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

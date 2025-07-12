@@ -5,24 +5,19 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useCallback, useEffect } from 'react';
+import React, { createRef, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { ShortedUrl } from '../models/ShortedUrl';
-import { Card, CardContent } from '../components/ui/card';
-import { ExternalLink } from 'lucide-react';
-import { getRelativeTime } from '../lib/luxon';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '../components/ui/tooltip';
-import Link from 'next/link';
+import ReCAPTCHA from 'react-google-recaptcha';
+import { ShortedUrlWithUrl, URLList } from '../components/url-list';
 
 export default function Home() {
+  const recaptchaRef = createRef<ReCAPTCHA>();
   const [isLoading, setLoading] = React.useState(false);
 
   const schema = z.object({
     url: z.url('Please insert a valid URL'),
+    token: z.string().nullable().optional(),
   });
 
   type SchemaData = z.infer<typeof schema>;
@@ -69,7 +64,14 @@ export default function Home() {
   const shortenUrl = useCallback(
     async (data: SchemaData) => {
       setLoading(true);
+      let token: string | null = null;
+
       try {
+        if (recaptchaRef.current && process.env.NODE_ENV === 'production') {
+          token = await recaptchaRef.current.executeAsync();
+          data.token = token;
+        }
+
         const response = await fetch('/api/short', {
           method: 'POST',
           headers: {
@@ -84,8 +86,11 @@ export default function Home() {
         }
 
         addUrl(responseData);
-
         copyValue(responseData.url);
+
+        if (recaptchaRef.current) {
+          recaptchaRef.current.reset();
+        }
       } catch {
         toast.error('Error on shortening URL, please try again later');
         setLoading(false);
@@ -93,7 +98,7 @@ export default function Home() {
         setLoading(false);
       }
     },
-    [addUrl, copyValue],
+    [addUrl, copyValue, recaptchaRef],
   );
 
   const {
@@ -105,15 +110,13 @@ export default function Home() {
     disabled: isLoading,
   });
 
-  const [urls, setUrls] = React.useState<(ShortedUrl & { url: string })[]>([]);
+  const [urls, setUrls] = React.useState<ShortedUrlWithUrl[]>([]);
 
   useEffect(() => {
     if (typeof window !== undefined) {
       const storage = localStorage.getItem('urls');
       if (storage) {
-        const parsedUrls = JSON.parse(storage) as (ShortedUrl & {
-          url: string;
-        })[];
+        const parsedUrls = JSON.parse(storage) as ShortedUrlWithUrl[];
         setUrls(parsedUrls);
       }
     }
@@ -140,6 +143,16 @@ export default function Home() {
           >
             {isLoading ? 'Shortening...' : 'Shorten'}
           </Button>
+          {(process.env.NODE_ENV === 'production' ||
+            process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) && (
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              size="invisible"
+              theme="dark"
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+              className="hidden"
+            />
+          )}
         </form>
         {errors.url ? (
           <small className="text-[15px] text-[#ee4646] mt-5">
@@ -151,56 +164,7 @@ export default function Home() {
           </small>
         )}
         <div className="lg:w-[40%] md:w-[70%] w-[80%] h-[40vh] fixed bottom-0">
-          <div className="flex flex-col h-full overflow-y-auto p-2 mt-[4rem] pb-[4rem] hide-scrollbar">
-            {urls &&
-              urls.length > 0 &&
-              urls.map((url) => (
-                <Card
-                  className="bg-[#14151486] border-[#383838] my-4"
-                  key={url.url}
-                >
-                  <CardContent className="flex justify-between items-center">
-                    <div>
-                      <h2
-                        className="text-white font-semibold md:text-[16px] text-[14px]"
-                        onClick={() => copyValue(url.url)}
-                      >
-                        {url.url}
-                      </h2>
-                      {url.createdAt && (
-                        <small className="text-[12px] text-white/30 mt-[10px]">
-                          Created at {getRelativeTime(url.createdAt)}
-                        </small>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        className="hover:cursor-pointer bg-white text-[#141514] hover:bg-white/90"
-                        onClick={() => copyValue(url.url)}
-                      >
-                        Copy
-                      </Button>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <Link href={url.url} target="_blank">
-                            <Button
-                              variant="outline"
-                              className="hover:cursor-pointer bg-white text-[#141514] hover:bg-white/90"
-                            >
-                              <ExternalLink />
-                            </Button>
-                          </Link>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{url.originalUrl}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-          </div>
+          <URLList items={urls} />
         </div>
       </div>
     </main>
