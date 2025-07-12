@@ -20,6 +20,10 @@ export const URLList: React.FC<IURLListProps> = ({ items }) => {
     toast.success('URL Copied to clipboard!');
   }, []);
 
+  const shortUrl = useCallback((url: string) => {
+    return url.length > 50 ? `${url.slice(0, 50)}...` : url;
+  },[])
+
   return (
     <div className="flex flex-col h-full overflow-y-auto p-2 mt-[4rem] pb-[4rem] hide-scrollbar">
       {items &&
@@ -40,7 +44,7 @@ export const URLList: React.FC<IURLListProps> = ({ items }) => {
                     </Link>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>{url.originalUrl}</p>
+                    <p>{shortUrl(url.originalUrl)}</p>
                   </TooltipContent>
                 </Tooltip>
 
@@ -70,7 +74,7 @@ export const URLList: React.FC<IURLListProps> = ({ items }) => {
                     </Link>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>{url.originalUrl}</p>
+                    <p>{shortUrl(url.originalUrl)}</p>
                   </TooltipContent>
                 </Tooltip>
               </div>

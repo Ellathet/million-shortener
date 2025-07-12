@@ -29,13 +29,13 @@ export default function Home() {
 
   const addUrl = useCallback((data: ShortedUrl & { url: string }) => {
     setUrls((self) => [
-      ...self,
       {
         originalUrl: data.originalUrl,
         url: data.url,
         createdAt: data.createdAt,
         expiredAt: data.expiredAt,
       },
+      ...self,
     ]);
 
     if (typeof window !== undefined) {
@@ -49,17 +49,27 @@ export default function Home() {
       localStorage.setItem(
         'urls',
         JSON.stringify([
-          ...parsedUrls,
           {
             originalUrl: data.originalUrl,
             url: data.url,
             createdAt: data.createdAt,
             expiredAt: data.expiredAt,
           },
+          ...parsedUrls,
         ]),
       );
     }
   }, []);
+
+ const {
+    handleSubmit,
+    formState: { errors },
+    register,
+    resetField,
+  } = useForm<SchemaData>({
+    resolver: zodResolver(schema),
+    disabled: isLoading,
+  });
 
   const shortenUrl = useCallback(
     async (data: SchemaData) => {
@@ -91,6 +101,8 @@ export default function Home() {
         if (recaptchaRef.current) {
           recaptchaRef.current.reset();
         }
+
+        resetField('url');
       } catch {
         toast.error('Error on shortening URL, please try again later');
         setLoading(false);
@@ -98,17 +110,8 @@ export default function Home() {
         setLoading(false);
       }
     },
-    [addUrl, copyValue, recaptchaRef],
+    [addUrl, copyValue, recaptchaRef, resetField],
   );
-
-  const {
-    handleSubmit,
-    formState: { errors },
-    register,
-  } = useForm<SchemaData>({
-    resolver: zodResolver(schema),
-    disabled: isLoading,
-  });
 
   const [urls, setUrls] = React.useState<ShortedUrlWithUrl[]>([]);
 
