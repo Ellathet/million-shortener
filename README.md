@@ -1,8 +1,25 @@
-# A way to scale you urls to million
+# Your URL to millions
+**Know [how](#scalable-way) we scale our url to millions**
 
+![alt text](./assets/screenshot.png)
 
+## Scalable to millions
 
-## Getting Started
+![alt text](./assets/system-design.png)
+
+Our achieve here is that you url never goes down, so we follow some steps:
+
+- **Unlimited URLs**: To provide millions of url we need a way to pass this estimative, so we use [nanoid](https://github.com/ai/nanoid), with your params we garante ~919 years or 8B IDs needed, in order to have a 1% probability of at least one collision.
+
+- **Mongo is a religion**: For storage this urls we need a huge database and fast too, so [MongoDB](https://www.mongodb.com/) Running at [atlas](https://www.mongodb.com/products/platform/atlas-database) to garante and globally distributed data storage.
+
+- **Everywhere in the world**: If we have a globally storage we need a way to provide it to every place in the world this is why we pick Vercel as your CDN, using [Edge Network](https://vercel.com/docs/edge-network) we provide this app and the redirects for multiple regions around the world.
+
+- **Unlimited Redirects**: And if the redirect goes down? We use [Next.js](https://nextjs.org/) working with SSR and [Vercel Functions](https://vercel.com/docs/functions) to provide a huge and unlimited serverless backend.
+
+- **Security**: Nothing more sad than a million service without security for that we use also [Vercel WAF](https://vercel.com/docs/vercel-firewall/vercel-waf), that able us to block and monitor everything it's happen in the network. Also we have a huge [captcha](https://developers.google.com/recaptcha?hl=pt-br) to block flooders. 
+
+## How to run locally
 
 ### 1. Clone the repository
 
