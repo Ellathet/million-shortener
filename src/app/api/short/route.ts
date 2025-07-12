@@ -16,6 +16,7 @@ export async function POST(request: NextRequest) {
       originalUrl: urlShorted.originalUrl,
       createdAt: urlShorted.createdAt,
       expiredAt: urlShorted.expiredAt,
+      // Gen Url only in response to avoid domain changes
       url: request.nextUrl.origin + '/' + urlShorted.id,
     }, {
       status: 201,
