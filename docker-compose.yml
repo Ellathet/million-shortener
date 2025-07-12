@@ -1,14 +1,26 @@
 version: '3.8'
+
 services:
-  mongo:
-    image: mongo:7
-    restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USER?err}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD?err}
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "${MONGODB_PORT?err}:27017"
+      - '3000:3000' # expose local port
+    volumes:
+      - .:/usr/src/app # mount local working directory for live reload
+      - /usr/src/app/node_modules # mount node_modules for caching
+    depends_on:
+      - mongo # wait for mongo service container
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/ # mongo container address
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - '27017:27017'
     volumes:
       - mongo-data:/data/db
+
 volumes:
   mongo-data:
