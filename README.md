@@ -60,7 +60,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Working with Docker
 
-You can run the app and MongoDB using Docker Compose:
+You can run the app and MongoDB using Docker Compose, after [install the packages](#2.-install-dependencies) we can run:
 
 ```bash
 docker-compose up --build
