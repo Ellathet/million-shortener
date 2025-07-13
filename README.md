@@ -47,8 +47,10 @@ cp .env.example .env
 Edit `.env` and set the following variables:
 
 - `MONGODB_URI` - MongoDB connection string (e.g., `mongodb://localhost:27017/`)
-- `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` - Your Google reCAPTCHA site key
-- `RECAPTCHA_SECRET_KEY` - Your Google reCAPTCHA secret key
+- `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` - Your Google reCAPTCHA site key (production)
+- `RECAPTCHA_SECRET_KEY` - Your Google reCAPTCHA secret key (production)
+- `REDIS_URL` - Redis URL (production)
+- `REDIS_TOKEN` - Upstash Redis token (production)
 
 ### 4. Run the development server
 
