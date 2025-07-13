@@ -17,7 +17,48 @@ export default function Home() {
   const [isLoading, setLoading] = React.useState(false);
 
   const schema = z.object({
-    url: z.url('Please insert a valid URL'),
+    url: z
+      .url('Please insert a valid URL')
+      .min(13, 'Please insert a valid URL')
+      .max(2048, 'Please insert a valid URL')
+      .regex(/^https:\/\/(?!\/)/, 'URL must start with https://')
+      .regex(
+        /^https:\/\/(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})(:[0-9]{2,5})?(\/[a-zA-Z0-9\-._~!$&'()*+,;=:@\/]*)?$/,
+        'Please insert a valid URL',
+      )
+      .refine(
+        (val) => {
+          // Check XSS injection
+          try {
+            const url = decodeURIComponent(val);
+            return !/[<>"]|'|`|\{\}/.test(url);
+          } catch {
+            return false;
+          }
+        },
+        {
+          message: 'Please insert a valid URL',
+        },
+      )
+      .refine(
+        (val) => {
+          // Disallow punycode (xn--) and non-ASCII in domain
+          try {
+            const url = new URL(val);
+            const domain = url.hostname;
+            // Block punycode
+            if (/^xn--/i.test(domain) || domain.split('.').some(part => /^xn--/i.test(part))) return false;
+            // Block non-ASCII
+            if (/[^\x00-\x7F]/.test(domain)) return false;
+            return true;
+          } catch {
+            return false;
+          }
+        },
+        {
+          message: 'Please insert a valid URL',
+        },
+      ),
     token: z.string().nullable().optional(),
   });
 
@@ -62,7 +103,7 @@ export default function Home() {
     }
   }, []);
 
- const {
+  const {
     handleSubmit,
     formState: { errors },
     register,
@@ -91,14 +132,13 @@ export default function Home() {
           body: JSON.stringify(data),
         });
 
-        if(response.status === HttpStatusCode.TooManyRequests) {
+        if (response.status === HttpStatusCode.TooManyRequests) {
           toast.error('Hey you, calm down! You are making too many requests.');
-          setLoading(false); 
-          return
+          setLoading(false);
+          return;
         }
- 
-        const responseData = await response.json();
 
+        const responseData = await response.json();
 
         if (responseData.error) {
           throw new Error(responseData.error);

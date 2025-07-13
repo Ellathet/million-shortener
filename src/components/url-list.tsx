@@ -36,7 +36,7 @@ export const URLList: React.FC<IURLListProps> = ({ items }) => {
                   <TooltipTrigger>
                     <Link href={url.url} target="_blank">
                       <h2
-                        className="text-white font-semibold md:text-[16px] text-[14px]"
+                        className="text-white font-semibold md:text-[16px] text-[60%]"
                         onClick={() => copyValue(url.url)}
                       >
                         {url.url}
@@ -49,7 +49,7 @@ export const URLList: React.FC<IURLListProps> = ({ items }) => {
                 </Tooltip>
 
                 {url.createdAt && (
-                  <small className="text-[12px] text-white/30">
+                  <small className="md:text-[12px] text-white/30 text-[12px]">
                     Created at {getRelativeTime(url.createdAt)}
                   </small>
                 )}
@@ -63,7 +63,7 @@ export const URLList: React.FC<IURLListProps> = ({ items }) => {
                   Copy
                 </Button>
                 <Tooltip>
-                  <TooltipTrigger>
+                  <TooltipTrigger className='hidden md:block'>
                     <Link href={url.url} target="_blank">
                       <Button
                         variant="outline"
