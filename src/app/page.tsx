@@ -23,7 +23,7 @@ export default function Home() {
       .max(2048, 'Please insert a valid URL')
       .regex(/^https:\/\/(?!\/)/, 'URL must start with https://')
       .regex(
-        /^https:\/\/(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,})(:[0-9]{2,5})?(\/[a-zA-Z0-9\-._~!$&'()*+,;=:@\/]*)?$/,
+        /^https:\/\/(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,})(:[0-9]{2,5})?(\/[^\s]*)?$/,
         'Please insert a valid URL',
       )
       .refine(
